@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,17 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Custom Memento Mori color palette
+				'foggy-blue': '#AEC6CF',
+				'slate-gray': '#708090',
+				'warm-cream': '#F4F1EE',
+				'dusty-rose': '#D8A7B1',
+				'charcoal': '#2E2E2E'
+			},
+			fontFamily: {
+				'poppins': ['Poppins', 'sans-serif'],
+				'inter': ['Inter', 'sans-serif'],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -84,11 +95,29 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-4px)' }
+				},
+				'gentle-fade': {
+					'0%': { opacity: '0', transform: 'translateY(10px)' },
+					'100%': { opacity: '1', transform: 'translateY(0)' }
+				},
+				'drift': {
+					'0%': { transform: 'translateX(0px) translateY(0px)' },
+					'25%': { transform: 'translateX(2px) translateY(-1px)' },
+					'50%': { transform: 'translateX(-1px) translateY(-2px)' },
+					'75%': { transform: 'translateX(-2px) translateY(1px)' },
+					'100%': { transform: 'translateX(0px) translateY(0px)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'float': 'float 3s ease-in-out infinite',
+				'gentle-fade': 'gentle-fade 0.6s ease-out',
+				'drift': 'drift 8s ease-in-out infinite'
 			}
 		}
 	},

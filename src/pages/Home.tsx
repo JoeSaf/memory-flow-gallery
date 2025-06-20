@@ -52,6 +52,25 @@ const Home = () => {
           </div>
         </div>
       </div>
+      
+      {/* Footer */}
+      <footer className="border-t border-foggy-blue/20 bg-warm-cream/80 backdrop-blur-sm mt-16">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center animate-gentle-fade">
+            <p className="font-inter text-slate-gray text-sm">
+              © 2025 Memoir Gallery. 
+              <a 
+                href="https://jonesclavery.netlify.app/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="ml-1 text-dusty-rose hover:text-charcoal transition-colors duration-300 font-medium"
+              >
+                Designed and coded by Jones
+              </a>
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

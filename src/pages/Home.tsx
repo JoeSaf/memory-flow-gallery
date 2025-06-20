@@ -11,7 +11,7 @@ const Home = () => {
     <div className="min-h-screen bg-gradient-to-br from-warm-cream via-foggy-blue/20 to-dusty-rose/20">
       <Header />
       
-      <div className="container mx-auto px-4 py-8 space-y-16">
+      <div className="container mx-auto px-4 py-8 pb-32 space-y-16">
         <HeroSection />
         
         <div className="max-w-4xl mx-auto space-y-12 animate-gentle-fade">

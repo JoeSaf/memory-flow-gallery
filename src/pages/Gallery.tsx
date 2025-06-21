@@ -4,7 +4,7 @@ import { PhotoGallery } from '../components/PhotoGallery';
 
 const Gallery = () => {
   return (
-    <div className="relative">
+    <div className="relative pt-32">
       <PhotoGallery />
       
       {/* Floating Glassmorphism Footer */}

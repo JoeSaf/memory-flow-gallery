@@ -61,7 +61,7 @@ export const PhotoGallery = () => {
     <div className="min-h-screen bg-gradient-to-br from-warm-cream via-foggy-blue/20 to-dusty-rose/20">
       <Header />
       
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 pb-32">
         <div className="flex flex-col lg:flex-row gap-6 mb-8">
           <TimeSlider sortBy={sortBy} setSortBy={setSortBy} />
           <AmbientControls 

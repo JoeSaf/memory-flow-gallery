@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Download, Heart } from 'lucide-react';
 import { Photo } from './PhotoGallery';
@@ -9,18 +8,45 @@ interface FloatingViewerProps {
 }
 
 export const FloatingViewer = ({ photo, onClose }: FloatingViewerProps) => {
-  const [position, setPosition] = useState({ x: 50, y: 50 });
+  const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [isLiked, setIsLiked] = useState(false);
   const viewerRef = useRef<HTMLDivElement>(null);
 
+  // Center the popup when it first appears
+  useEffect(() => {
+    const centerPopup = () => {
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const popupWidth = Math.min(viewportWidth * 0.9, 600);
+      const popupHeight = Math.min(viewportHeight * 0.9, 800);
+      
+      const centerX = (viewportWidth - popupWidth) / 2;
+      const centerY = (viewportHeight - popupHeight) / 2;
+      
+      setPosition({ x: centerX, y: centerY });
+    };
+
+    centerPopup();
+    window.addEventListener('resize', centerPopup);
+    return () => window.removeEventListener('resize', centerPopup);
+  }, []);
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging) return;
+      if (!isDragging || !viewerRef.current) return;
       
-      const newX = position.x + (e.clientX - dragStart.x);
-      const newY = position.y + (e.clientY - dragStart.y);
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const rect = viewerRef.current.getBoundingClientRect();
+      
+      let newX = position.x + (e.clientX - dragStart.x);
+      let newY = position.y + (e.clientY - dragStart.y);
+      
+      // Keep popup within viewport bounds
+      newX = Math.max(0, Math.min(newX, viewportWidth - rect.width));
+      newY = Math.max(0, Math.min(newY, viewportHeight - rect.height));
       
       setPosition({ x: newX, y: newY });
       setDragStart({ x: e.clientX, y: e.clientY });

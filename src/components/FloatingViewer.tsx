@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Download, Heart } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Photo } from './PhotoGallery';
 
 interface FloatingViewerProps {
@@ -11,7 +11,6 @@ export const FloatingViewer = ({ photo, onClose }: FloatingViewerProps) => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [isLiked, setIsLiked] = useState(false);
   const viewerRef = useRef<HTMLDivElement>(null);
 
   // Center the popup when it first appears
@@ -74,14 +73,6 @@ export const FloatingViewer = ({ photo, onClose }: FloatingViewerProps) => {
     }
   };
 
-  const handleDownload = () => {
-    const link = document.createElement('a');
-    link.href = photo.filename;
-    link.download = `${photo.title}.jpg`;
-    link.click();
-    console.log('Download initiated for:', photo.title);
-  };
-
   return (
     <>
       {/* Backdrop */}
@@ -119,22 +110,6 @@ export const FloatingViewer = ({ photo, onClose }: FloatingViewerProps) => {
           </div>
           
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setIsLiked(!isLiked)}
-              className={`p-2 rounded-full transition-colors ${
-                isLiked ? 'bg-dusty-rose text-warm-cream' : 'bg-foggy-blue/20 text-slate-gray hover:bg-dusty-rose/20'
-              }`}
-            >
-              <Heart size={16} fill={isLiked ? 'currentColor' : 'none'} />
-            </button>
-            
-            <button
-              onClick={handleDownload}
-              className="p-2 rounded-full bg-foggy-blue/20 text-slate-gray hover:bg-slate-gray/20 transition-colors"
-            >
-              <Download size={16} />
-            </button>
-            
             <button
               onClick={onClose}
               className="p-2 rounded-full bg-dusty-rose/20 text-slate-gray hover:bg-dusty-rose/40 transition-colors"

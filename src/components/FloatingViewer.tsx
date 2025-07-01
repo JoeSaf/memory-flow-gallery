@@ -1,17 +1,24 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Photo } from './PhotoGallery';
 
 interface FloatingViewerProps {
   photo: Photo;
+  photos: Photo[];
   onClose: () => void;
+  onNavigate: (photo: Photo) => void;
 }
 
-export const FloatingViewer = ({ photo, onClose }: FloatingViewerProps) => {
+export const FloatingViewer = ({ photo, photos, onClose, onNavigate }: FloatingViewerProps) => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const viewerRef = useRef<HTMLDivElement>(null);
+
+  // Find current photo index
+  const currentIndex = photos.findIndex(p => p.id === photo.id);
+  const hasPrevious = currentIndex > 0;
+  const hasNext = currentIndex < photos.length - 1;
 
   // Center the popup when it first appears
   useEffect(() => {
@@ -31,6 +38,22 @@ export const FloatingViewer = ({ photo, onClose }: FloatingViewerProps) => {
     window.addEventListener('resize', centerPopup);
     return () => window.removeEventListener('resize', centerPopup);
   }, []);
+
+  // Handle keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' && hasPrevious) {
+        handlePrevious();
+      } else if (e.key === 'ArrowRight' && hasNext) {
+        handleNext();
+      } else if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [currentIndex, hasPrevious, hasNext]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -73,6 +96,20 @@ export const FloatingViewer = ({ photo, onClose }: FloatingViewerProps) => {
     }
   };
 
+  const handlePrevious = () => {
+    if (hasPrevious) {
+      const previousPhoto = photos[currentIndex - 1];
+      onNavigate(previousPhoto);
+    }
+  };
+
+  const handleNext = () => {
+    if (hasNext) {
+      const nextPhoto = photos[currentIndex + 1];
+      onNavigate(nextPhoto);
+    }
+  };
+
   return (
     <>
       {/* Backdrop */}
@@ -110,6 +147,9 @@ export const FloatingViewer = ({ photo, onClose }: FloatingViewerProps) => {
           </div>
           
           <div className="flex items-center gap-2">
+            <span className="text-slate-gray text-sm">
+              {currentIndex + 1} of {photos.length}
+            </span>
             <button
               onClick={onClose}
               className="p-2 rounded-full bg-dusty-rose/20 text-slate-gray hover:bg-dusty-rose/40 transition-colors"
@@ -119,13 +159,32 @@ export const FloatingViewer = ({ photo, onClose }: FloatingViewerProps) => {
           </div>
         </div>
 
-        {/* Image */}
+        {/* Image with navigation */}
         <div className="relative">
           <img
             src={photo.filename}
             alt={photo.title}
             className="w-full h-auto max-h-[60vh] object-contain bg-gradient-to-br from-foggy-blue/5 to-dusty-rose/5"
           />
+          
+          {/* Navigation buttons */}
+          {hasPrevious && (
+            <button
+              onClick={handlePrevious}
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-charcoal/70 text-warm-cream rounded-full hover:bg-charcoal/90 transition-all duration-200 backdrop-blur-sm"
+            >
+              <ChevronLeft size={20} />
+            </button>
+          )}
+          
+          {hasNext && (
+            <button
+              onClick={handleNext}
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-charcoal/70 text-warm-cream rounded-full hover:bg-charcoal/90 transition-all duration-200 backdrop-blur-sm"
+            >
+              <ChevronRight size={20} />
+            </button>
+          )}
         </div>
 
         {/* Caption and metadata */}

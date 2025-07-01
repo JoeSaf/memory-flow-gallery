@@ -52,6 +52,11 @@ export const PhotoGallery = () => {
     console.log('Photo selected:', photo.title);
   };
 
+  const handleNavigate = (photo: Photo) => {
+    setSelectedPhoto(photo);
+    console.log('Navigated to photo:', photo.title);
+  };
+
   const closeViewer = () => {
     setSelectedPhoto(null);
     console.log('Photo viewer closed');
@@ -79,7 +84,9 @@ export const PhotoGallery = () => {
         {selectedPhoto && (
           <FloatingViewer 
             photo={selectedPhoto}
+            photos={sortedPhotos}
             onClose={closeViewer}
+            onNavigate={handleNavigate}
           />
         )}
       </div>

@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { PhotoGrid } from './PhotoGrid';
 import { FloatingViewer } from './FloatingViewer';
 import { TimeSlider } from './TimeSlider';
-import { AmbientControls } from './AmbientControls';
 import { Header } from './Header';
 import galleryData from '../data/gallery.json';
 
@@ -21,29 +20,20 @@ export interface Photo {
 export const PhotoGallery = () => {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
-  const [sortBy, setSortBy] = useState<'date' | 'season'>('date');
-  const [isAmbientMode, setIsAmbientMode] = useState(false);
-  const [currentAmbientIndex, setCurrentAmbientIndex] = useState(0);
+  const [sortBy, setSortBy] = useState<'date' | 'year'>('date');
 
   useEffect(() => {
     setPhotos(galleryData as Photo[]);
   }, []);
 
-  useEffect(() => {
-    if (isAmbientMode && photos.length > 0) {
-      const interval = setInterval(() => {
-        setCurrentAmbientIndex((prev) => (prev + 1) % photos.length);
-      }, 4000);
-      return () => clearInterval(interval);
-    }
-  }, [isAmbientMode, photos.length]);
-
   const sortedPhotos = [...photos].sort((a, b) => {
     if (sortBy === 'date') {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     } else {
-      const seasonOrder = ['spring', 'summer', 'autumn', 'winter'];
-      return seasonOrder.indexOf(a.season) - seasonOrder.indexOf(b.season);
+      // Sort by year
+      const yearA = new Date(a.date).getFullYear();
+      const yearB = new Date(b.date).getFullYear();
+      return yearB - yearA;
     }
   });
 
@@ -67,18 +57,13 @@ export const PhotoGallery = () => {
       <Header />
       
       <div className="container mx-auto px-4 py-8 pb-32">
-        <div className="flex flex-col lg:flex-row gap-6 mb-8">
+        <div className="flex justify-center mb-8">
           <TimeSlider sortBy={sortBy} setSortBy={setSortBy} />
-          <AmbientControls 
-            isAmbientMode={isAmbientMode}
-            setIsAmbientMode={setIsAmbientMode}
-          />
         </div>
 
         <PhotoGrid 
           photos={sortedPhotos}
           onPhotoClick={handlePhotoClick}
-          ambientPhoto={isAmbientMode ? sortedPhotos[currentAmbientIndex] : null}
         />
 
         {selectedPhoto && (

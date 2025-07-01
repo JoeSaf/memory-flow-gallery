@@ -12,6 +12,17 @@ interface PhotoCardProps {
 export const PhotoCard = ({ photo, onClick, isHighlighted = false, delay = 0 }: PhotoCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+    console.log('Image loaded successfully:', photo.thumbnail);
+  };
+
+  const handleImageError = () => {
+    setImageError(true);
+    console.log('Image failed to load:', photo.thumbnail);
+  };
 
   return (
     <div 
@@ -27,14 +38,24 @@ export const PhotoCard = ({ photo, onClick, isHighlighted = false, delay = 0 }: 
       {/* Main image container */}
       <div className="relative overflow-hidden rounded-2xl bg-foggy-blue/10 shadow-lg hover:shadow-xl transition-all duration-300">
         <div className="aspect-[4/3] bg-gradient-to-br from-foggy-blue/20 to-dusty-rose/20">
-          <img
-            src={photo.thumbnail}
-            alt={photo.title}
-            className={`w-full h-full object-cover transition-all duration-500 ${
-              imageLoaded ? 'opacity-100' : 'opacity-0'
-            } ${isHovered ? 'scale-110' : 'scale-100'}`}
-            onLoad={() => setImageLoaded(true)}
-          />
+          {imageError ? (
+            <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">
+              <div className="text-center">
+                <p className="text-sm">Failed to load image</p>
+                <p className="text-xs mt-1">{photo.thumbnail}</p>
+              </div>
+            </div>
+          ) : (
+            <img
+              src={photo.thumbnail}
+              alt={photo.title}
+              className={`w-full h-full object-cover transition-all duration-500 ${
+                imageLoaded ? 'opacity-100' : 'opacity-0'
+              } ${isHovered ? 'scale-110' : 'scale-100'}`}
+              onLoad={handleImageLoad}
+              onError={handleImageError}
+            />
+          )}
           
           {/* Overlay gradient */}
           <div className="absolute inset-0 bg-gradient-to-t from-charcoal/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

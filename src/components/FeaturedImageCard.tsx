@@ -6,9 +6,9 @@ export const FeaturedImageCard = () => {
 
   // You can easily change these values to customize the featured image
   const featuredImage = {
-    src: "/gallery/photos/IMG_9923.webp", // Change this to your desired image path
-    alt: "Petrol Heads", // Change this to describe your image
-    title: "Petrol Heads" // Change this to your desired title
+    src: "/images/charzpuplr.jpg", // Change this to your desired image path
+    alt: "Fine Arts", // Change this to describe your image
+    title: "Memoir" // Change this to your desired title
   };
 
   return (

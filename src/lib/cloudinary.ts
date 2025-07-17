@@ -1,20 +1,13 @@
 
-import { Cloudinary } from '@cloudinary/url-gen';
-import { auto } from '@cloudinary/url-gen/actions/resize';
-import { auto as autoFormat } from '@cloudinary/url-gen/actions/delivery';
-import { auto as autoQuality } from '@cloudinary/url-gen/actions/delivery';
-
-// Initialize Cloudinary instance
-const cld = new Cloudinary({
-  cloud: {
-    cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'demo'
-  }
-});
+// Simple Cloudinary URL builder without package dependencies
+const CLOUDINARY_CLOUD_NAME = 'dxmpicoqj';
+const CLOUDINARY_FOLDER = 'memoir-gallery';
+const CLOUDINARY_BASE_URL = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload`;
 
 export interface ImageSizeOptions {
   width?: number;
   height?: number;
-  quality?: string | number;
+  quality?: string;
   format?: string;
 }
 
@@ -31,18 +24,28 @@ export const getCloudinaryUrl = (imagePath: string, options: ImageSizeOptions = 
   // Remove file extension for Cloudinary
   const publicId = cleanPath.replace(/\.[^/.]+$/, '');
   
-  // Create Cloudinary image instance
-  const image = cld.image(publicId);
+  // Build transformation parameters
+  const transformations = [];
   
-  // Apply automatic format and quality optimization
-  image.delivery(autoFormat()).delivery(autoQuality());
-  
-  // Apply resizing if specified
-  if (options.width || options.height) {
-    image.resize(auto().width(options.width).height(options.height));
+  if (options.width) {
+    transformations.push(`w_${options.width}`);
   }
   
-  return image.toURL();
+  if (options.height) {
+    transformations.push(`h_${options.height}`);
+  }
+  
+  // Add crop mode if both width and height are specified
+  if (options.width && options.height) {
+    transformations.push('c_fill');
+  }
+  
+  // Add automatic format and quality optimization
+  transformations.push('f_auto', 'q_auto');
+  
+  // Build the complete URL
+  const transformationString = transformations.join(',');
+  return `${CLOUDINARY_BASE_URL}/${transformationString}/${CLOUDINARY_FOLDER}/${publicId}`;
 };
 
 /**
@@ -51,8 +54,7 @@ export const getCloudinaryUrl = (imagePath: string, options: ImageSizeOptions = 
 export const getThumbnailUrl = (imagePath: string) => {
   return getCloudinaryUrl(imagePath, {
     width: 400,
-    height: 300,
-    quality: 'auto'
+    height: 300
   });
 };
 
@@ -62,8 +64,7 @@ export const getThumbnailUrl = (imagePath: string) => {
 export const getMediumUrl = (imagePath: string) => {
   return getCloudinaryUrl(imagePath, {
     width: 800,
-    height: 600,
-    quality: 'auto'
+    height: 600
   });
 };
 
@@ -72,8 +73,7 @@ export const getMediumUrl = (imagePath: string) => {
  */
 export const getFullUrl = (imagePath: string) => {
   return getCloudinaryUrl(imagePath, {
-    width: 1200,
-    quality: 'auto'
+    width: 1200
   });
 };
 

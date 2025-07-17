@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Photo } from './PhotoGallery';
+import { getFullUrl, isCloudinaryConfigured } from '../lib/cloudinary';
 
 interface FloatingViewerProps {
   photo: Photo;
@@ -19,6 +20,11 @@ export const FloatingViewer = ({ photo, photos, onClose, onNavigate }: FloatingV
   const currentIndex = photos.findIndex(p => p.id === photo.id);
   const hasPrevious = currentIndex > 0;
   const hasNext = currentIndex < photos.length - 1;
+
+  // Use Cloudinary URL if configured, otherwise fallback to local path
+  const imageUrl = isCloudinaryConfigured() 
+    ? getFullUrl(photo.filename)
+    : photo.filename;
 
   // Center the popup when it first appears
   useEffect(() => {
@@ -162,9 +168,10 @@ export const FloatingViewer = ({ photo, photos, onClose, onNavigate }: FloatingV
         {/* Image with navigation */}
         <div className="relative">
           <img
-            src={photo.filename}
+            src={imageUrl}
             alt={photo.title}
             className="w-full h-auto max-h-[60vh] object-contain bg-gradient-to-br from-foggy-blue/5 to-dusty-rose/5"
+            loading="eager"
           />
           
           {/* Navigation buttons */}

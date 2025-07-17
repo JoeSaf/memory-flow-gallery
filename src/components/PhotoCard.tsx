@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Photo } from './PhotoGallery';
+import { getThumbnailUrl, isCloudinaryConfigured } from '../lib/cloudinary';
 
 interface PhotoCardProps {
   photo: Photo;
@@ -23,6 +24,11 @@ export const PhotoCard = ({ photo, onClick, isHighlighted = false, delay = 0 }: 
     setImageError(true);
     console.log('Image failed to load:', photo.thumbnail);
   };
+
+  // Use Cloudinary URL if configured, otherwise fallback to local path
+  const imageUrl = isCloudinaryConfigured() 
+    ? getThumbnailUrl(photo.thumbnail)
+    : photo.thumbnail;
 
   return (
     <div 
@@ -47,13 +53,14 @@ export const PhotoCard = ({ photo, onClick, isHighlighted = false, delay = 0 }: 
             </div>
           ) : (
             <img
-              src={photo.thumbnail}
+              src={imageUrl}
               alt={photo.title}
               className={`w-full h-full object-cover transition-all duration-500 ${
                 imageLoaded ? 'opacity-100' : 'opacity-0'
               } ${isHovered ? 'scale-110' : 'scale-100'}`}
               onLoad={handleImageLoad}
               onError={handleImageError}
+              loading="lazy"
             />
           )}
           

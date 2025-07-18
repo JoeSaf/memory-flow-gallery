@@ -9,6 +9,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Photo } from '@/components/PhotoGallery';
+import { Header } from '@/components/Header';
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -158,8 +159,9 @@ const Admin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-warm-cream via-foggy-blue/20 to-dusty-rose/20 p-8">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-warm-cream via-foggy-blue/20 to-dusty-rose/20">
+      <Header />
+      <div className="max-w-2xl mx-auto p-8 pt-24">
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-center">

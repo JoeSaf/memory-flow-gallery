@@ -1,11 +1,15 @@
 
 import React from 'react';
 import { PhotoGallery } from '../components/PhotoGallery';
+import { Header } from '../components/Header';
 
 const Gallery = () => {
   return (
-    <div className="relative pt-32">
-      <PhotoGallery />
+    <div className="relative">
+      <Header />
+      <div className="pt-8">
+        <PhotoGallery />
+      </div>
       
       {/* Floating Glassmorphism Footer */}
       <footer className="fixed bottom-4 left-4 right-4 z-50">

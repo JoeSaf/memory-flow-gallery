@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { PhotoGrid } from './PhotoGrid';
 import { FloatingViewer } from './FloatingViewer';
 import { TimeSlider } from './TimeSlider';
-import { Header } from './Header';
+
 import galleryData from '../data/gallery.json';
 
 export interface Photo {
@@ -54,8 +54,6 @@ export const PhotoGallery = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-warm-cream via-foggy-blue/20 to-dusty-rose/20">
-      <Header />
-      
       <div className="container mx-auto px-4 py-8 pb-32">
         <div className="flex justify-center mb-8">
           <TimeSlider sortBy={sortBy} setSortBy={setSortBy} />

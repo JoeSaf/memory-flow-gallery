@@ -48,15 +48,26 @@ const Admin = () => {
     }
   };
 
-  const generateUniqueId = () => {
-    return Date.now() + Math.random();
+  const getNextGalleryId = async (): Promise<number> => {
+    // Fetch current gallery data to find highest ID
+    try {
+      const response = await fetch('/src/data/gallery.json');
+      const galleryData = await response.json();
+      const maxId = Math.max(...galleryData.map((photo: Photo) => photo.id));
+      return maxId + 1;
+    } catch (error) {
+      console.error('Error reading gallery data:', error);
+      // Fallback to timestamp-based ID if gallery.json can't be read
+      return Date.now();
+    }
   };
 
-  const uploadToCloudinary = async (file: File): Promise<string> => {
+  const uploadToCloudinary = async (file: File, galleryId: number): Promise<string> => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', 'memoir_gallery');
     formData.append('folder', 'memoir-gallery');
+    formData.append('public_id', galleryId.toString()); // Use gallery ID as public_id for consistency
 
     const response = await fetch(
       `https://api.cloudinary.com/v1_1/dxmpicoqj/image/upload`,
@@ -91,15 +102,41 @@ const Admin = () => {
     });
   };
 
-  const addToGallery = async (newPhoto: Photo) => {
-    // In a real app, this would update the gallery.json file
-    // For now, we'll just show the JSON that should be added
-    console.log('New photo entry:', JSON.stringify(newPhoto, null, 2));
-    
-    toast({
-      title: "Photo uploaded successfully!",
-      description: "Check console for gallery entry JSON to add to gallery.json",
-    });
+  const downloadUpdatedGalleryJson = async (newPhoto: Photo) => {
+    try {
+      // Fetch current gallery data
+      const response = await fetch('/src/data/gallery.json');
+      const currentGallery = await response.json();
+      
+      // Add new photo to the beginning of the array (most recent first)
+      const updatedGallery = [newPhoto, ...currentGallery];
+      
+      // Create downloadable JSON file
+      const jsonBlob = new Blob([JSON.stringify(updatedGallery, null, 2)], {
+        type: 'application/json'
+      });
+      
+      const url = URL.createObjectURL(jsonBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'gallery.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Gallery JSON Updated!",
+        description: "Download complete. Replace src/data/gallery.json with the downloaded file to make the photo live.",
+      });
+    } catch (error) {
+      console.error('Error updating gallery JSON:', error);
+      toast({
+        title: "JSON Update Failed",
+        description: "Could not fetch current gallery data. Check console for details.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -117,19 +154,22 @@ const Admin = () => {
     setIsUploading(true);
 
     try {
-      // Upload to Cloudinary
-      const cloudinaryFilename = await uploadToCloudinary(selectedFile);
+      // Get next available gallery ID
+      const galleryId = await getNextGalleryId();
       
-      // Generate filename for local storage
+      // Upload to Cloudinary with consistent ID
+      const cloudinaryFilename = await uploadToCloudinary(selectedFile, galleryId);
+      
+      // Generate filename for local storage (use gallery ID for consistency)
       const fileExtension = selectedFile.name.split('.').pop();
-      const localFilename = `${cloudinaryFilename}.${fileExtension}`;
+      const localFilename = `${galleryId}.${fileExtension}`;
       
       // Download for local backup
       await downloadImageLocally(selectedFile, localFilename);
       
-      // Create new photo entry
+      // Create new photo entry with consistent ID
       const newPhoto: Photo = {
-        id: generateUniqueId(),
+        id: galleryId, // Use the same ID for perfect consistency
         title: formData.title,
         filename: `images/${localFilename}`,
         thumbnail: `images/${localFilename}`,
@@ -139,8 +179,14 @@ const Admin = () => {
         caption: formData.caption || ''
       };
 
-      // Add to gallery (in development, this logs the JSON)
-      await addToGallery(newPhoto);
+      // Download updated gallery.json with new photo added
+      await downloadUpdatedGalleryJson(newPhoto);
+
+      // Show success message
+      toast({
+        title: "Upload Complete!",
+        description: `Photo ID ${galleryId} uploaded to Cloudinary and gallery.json updated. Replace the gallery.json file to make it live!`,
+      });
 
       // Reset form
       setFormData({ title: '', caption: '', tag: '', season: '' });
@@ -172,13 +218,15 @@ const Admin = () => {
             </p>
           </CardHeader>
           <CardContent>
-            <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-              <h3 className="font-semibold text-amber-800 mb-2">Setup Instructions:</h3>
-              <ol className="text-sm text-amber-700 space-y-1">
-                <li>1. Create upload preset "memoir_gallery" in Cloudinary (unsigned)</li>
-                <li>2. Set folder to "memoir-gallery" in the preset</li>
-                <li>3. Enable automatic format and quality optimization</li>
-                <li>4. After upload, manually save the downloaded file to public/images/</li>
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <h3 className="font-semibold text-blue-800 mb-2">How It Works:</h3>
+              <ol className="text-sm text-blue-700 space-y-1">
+                <li>1. Upload automatically gets next available ID (currently 177+)</li>
+                <li>2. Cloudinary gets public_id: memoir-gallery/{'{ID}'}</li>
+                <li>3. Local backup filename: images/{'{ID}'}.jpg</li>
+                <li>4. Updated gallery.json downloads automatically</li>
+                <li>5. Replace src/data/gallery.json with downloaded file</li>
+                <li>6. Photo appears immediately on the site!</li>
               </ol>
             </div>
 

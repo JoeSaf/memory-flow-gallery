@@ -1,27 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Header } from '../components/Header';
 import { FeaturedImageCard } from '../components/FeaturedImageCard';
 import { HeroSection } from '../components/HeroSection';
 import { ContentSection } from '../components/ContentSection';
-import { useSmartPrefetch } from '../hooks/useSmartPrefetch';
-import { Photo } from '../components/PhotoGallery';
-import galleryData from '../data/gallery.json';
 
 const Home = () => {
-  const [photos, setPhotos] = useState<Photo[]>([]);
-
-  // Load gallery data for prefetching
-  useEffect(() => {
-    setPhotos(galleryData as Photo[]);
-  }, []);
-
-  // Smart prefetching based on user engagement
-  const { isPrefetching, prefetched } = useSmartPrefetch(photos, {
-    engagementTimeMs: 3000,  // 3 seconds on page
-    scrollThreshold: 100,    // 100px scroll
-    maxImages: 8             // Top 8 images
-  });
   return (
     <div className="min-h-screen bg-gradient-to-br from-warm-cream via-foggy-blue/20 to-dusty-rose/20">
       <Header />

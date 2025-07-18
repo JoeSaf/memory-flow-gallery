@@ -40,13 +40,8 @@ export const getCloudinaryUrl = (imagePath: string, options: ImageSizeOptions = 
     transformations.push('c_fill');
   }
   
-  // Add custom quality if specified
-  if (options.quality) {
-    transformations.push(`q_${options.quality}`);
-  } else {
-    // Add automatic format and quality optimization
-    transformations.push('f_auto', 'q_auto');
-  }
+  // Add automatic format and quality optimization
+  transformations.push('f_auto', 'q_auto');
   
   // Build the complete URL
   const transformationString = transformations.join(',');
@@ -88,44 +83,4 @@ export const getFullUrl = (imagePath: string) => {
 export const isCloudinaryConfigured = () => {
   return !!import.meta.env.VITE_CLOUDINARY_CLOUD_NAME && 
          import.meta.env.VITE_CLOUDINARY_CLOUD_NAME !== 'demo';
-};
-
-/**
- * Get tiny blurred placeholder URL for progressive loading
- */
-export const getPlaceholderUrl = (imagePath: string) => {
-  // Remove leading slash and "images/" prefix if present
-  const cleanPath = imagePath.replace(/^\/?(images\/)?/, '');
-  const publicId = cleanPath.replace(/\.[^/.]+$/, '');
-  
-  const transformations = [
-    'w_50',        // Very small width
-    'q_30',        // Low quality
-    'e_blur:300',  // Heavy blur effect
-    'f_auto'       // Auto format
-  ].join(',');
-  
-  return `${CLOUDINARY_BASE_URL}/${transformations}/${CLOUDINARY_FOLDER}/${publicId}`;
-};
-
-/**
- * Get low quality URL for progressive loading
- */
-export const getLowQualityUrl = (imagePath: string) => {
-  return getCloudinaryUrl(imagePath, {
-    width: 400,
-    height: 300,
-    quality: '50'
-  });
-};
-
-/**
- * Get URLs for all progressive loading stages
- */
-export const getProgressiveUrls = (imagePath: string) => {
-  return {
-    placeholder: getPlaceholderUrl(imagePath),
-    lowQuality: getLowQualityUrl(imagePath),
-    highQuality: getThumbnailUrl(imagePath) // Reuse existing thumbnail function
-  };
 };

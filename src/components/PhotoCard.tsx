@@ -1,7 +1,9 @@
 
 import React, { useState } from 'react';
 import { Photo } from './PhotoGallery';
-import { getThumbnailUrl, isCloudinaryConfigured } from '../lib/cloudinary';
+import { getThumbnailUrl, isCloudinaryConfigured, getProgressiveUrls } from '../lib/cloudinary';
+import { useProgressiveImage } from '../hooks/useProgressiveImage';
+import { isImageCached } from '../lib/image-utils';
 
 interface PhotoCardProps {
   photo: Photo;
@@ -12,23 +14,33 @@ interface PhotoCardProps {
 
 export const PhotoCard = ({ photo, onClick, isHighlighted = false, delay = 0 }: PhotoCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  const handleImageLoad = () => {
-    setImageLoaded(true);
-    console.log('Image loaded successfully:', photo.thumbnail);
-  };
+  // Get progressive URLs for enhanced loading
+  const progressiveUrls = isCloudinaryConfigured() ? getProgressiveUrls(photo.thumbnail) : null;
+  const fallbackUrl = photo.thumbnail;
+
+  // Use progressive loading if Cloudinary is configured and image isn't cached
+  const enableProgressive = isCloudinaryConfigured() && 
+                           progressiveUrls && 
+                           !isImageCached(progressiveUrls.highQuality);
+
+  const { currentStage, isLoading, isError } = useProgressiveImage(
+    progressiveUrls?.placeholder || fallbackUrl,
+    progressiveUrls?.lowQuality || fallbackUrl,
+    progressiveUrls?.highQuality || fallbackUrl,
+    { enableProgressive }
+  );
 
   const handleImageError = () => {
     setImageError(true);
     console.log('Image failed to load:', photo.thumbnail);
   };
 
-  // Use Cloudinary URL if configured, otherwise fallback to local path
-  const imageUrl = isCloudinaryConfigured() 
-    ? getThumbnailUrl(photo.thumbnail)
-    : photo.thumbnail;
+  // Use progressive image stage or fallback
+  const imageUrl = isCloudinaryConfigured() && progressiveUrls && !isError
+    ? currentStage.src 
+    : fallbackUrl;
 
   return (
     <div 
@@ -44,7 +56,7 @@ export const PhotoCard = ({ photo, onClick, isHighlighted = false, delay = 0 }: 
       {/* Main image container */}
       <div className="relative overflow-hidden rounded-2xl bg-foggy-blue/10 shadow-lg hover:shadow-xl transition-all duration-300">
         <div className="aspect-[4/3] bg-gradient-to-br from-foggy-blue/20 to-dusty-rose/20">
-          {imageError ? (
+          {imageError || isError ? (
             <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">
               <div className="text-center">
                 <p className="text-sm">Failed to load image</p>
@@ -52,19 +64,29 @@ export const PhotoCard = ({ photo, onClick, isHighlighted = false, delay = 0 }: 
               </div>
             </div>
           ) : (
-            <img
-              src={imageUrl}
-              alt={photo.title}
-              className={`w-full h-full object-cover transition-all duration-500 ${
-                imageLoaded ? 'opacity-100' : 'opacity-0'
-              } ${isHovered ? 'scale-110' : 'scale-100'}`}
-              onLoad={handleImageLoad}
-              onError={handleImageError}
-              loading="lazy"
-            />
+            <>
+              <img
+                src={imageUrl}
+                alt={photo.title}
+                className={`
+                  w-full h-full object-cover transition-all duration-500
+                  ${currentStage.loaded ? 'opacity-100' : 'opacity-0'}
+                  ${isHovered ? 'scale-110' : 'scale-100'}
+                  ${currentStage.stage === 'placeholder' ? 'filter blur-sm' : ''}
+                  ${currentStage.stage === 'lowQuality' ? 'filter blur-[1px]' : ''}
+                `}
+                onError={handleImageError}
+                loading="lazy"
+              />
+              
+              {/* Loading shimmer overlay */}
+              {isLoading && (
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
+              )}
+            </>
           )}
           
-          {/* Overlay gradient */}
+          {/* Overlay gradient - keep existing functionality */}
           <div className="absolute inset-0 bg-gradient-to-t from-charcoal/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
 

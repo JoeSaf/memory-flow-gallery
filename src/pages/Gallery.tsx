@@ -1,13 +1,29 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { PhotoGallery } from '../components/PhotoGallery';
 import { Header } from '../components/Header';
+import { usePrefetchOnNearView } from '../hooks/usePrefetchOnNearView';
+import { Photo } from '../components/PhotoGallery';
+import galleryData from '../data/gallery.json';
 
 const Gallery = () => {
+  const [photos, setPhotos] = useState<Photo[]>([]);
+
+  // Load gallery data for prefetching
+  useEffect(() => {
+    setPhotos(galleryData as Photo[]);
+  }, []);
+
+  // Prefetch when user approaches gallery content
+  const { targetRef, isPrefetching, prefetched } = usePrefetchOnNearView(photos, {
+    threshold: 200,   // 200px before visible
+    maxImages: 12     // Extended prefetch set
+  });
+
   return (
     <div className="relative">
       <Header />
-      <div className="pt-8">
+      <div className="pt-8" ref={targetRef}>
         <PhotoGallery />
       </div>
       

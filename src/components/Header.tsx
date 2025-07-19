@@ -6,26 +6,26 @@ export const Header = () => {
   const location = useLocation();
   
   return (
-    <header className="bg-white/90 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-md border-b border-white/20 shadow-lg">
       <div className="container mx-auto px-4 py-4">
         <nav className="flex items-center justify-between">
-          <Link to="/" className="text-2xl font-bold text-gray-800 hover:text-blue-600 transition-colors">
+          <Link to="/" className="text-2xl font-bold text-charcoal hover:text-dusty-rose transition-colors duration-300">
             Memoir Gallery
           </Link>
           
           <div className="flex items-center space-x-6">
             <Link 
               to="/" 
-              className={`hover:text-blue-600 transition-colors ${
-                location.pathname === '/' ? 'text-blue-600 font-semibold' : 'text-gray-600'
+              className={`hover:text-dusty-rose transition-colors duration-300 ${
+                location.pathname === '/' ? 'text-dusty-rose font-semibold' : 'text-charcoal/80'
               }`}
             >
               Home
             </Link>
             <Link 
               to="/gallery" 
-              className={`hover:text-blue-600 transition-colors ${
-                location.pathname === '/gallery' ? 'text-blue-600 font-semibold' : 'text-gray-600'
+              className={`hover:text-dusty-rose transition-colors duration-300 ${
+                location.pathname === '/gallery' ? 'text-dusty-rose font-semibold' : 'text-charcoal/80'
               }`}
             >
               Gallery
@@ -34,8 +34,8 @@ export const Header = () => {
             {import.meta.env.DEV && (
               <Link 
                 to="/admin" 
-                className={`hover:text-orange-600 transition-colors ${
-                  location.pathname === '/admin' ? 'text-orange-600 font-semibold' : 'text-orange-500'
+                className={`hover:text-dusty-rose transition-colors duration-300 ${
+                  location.pathname === '/admin' ? 'text-dusty-rose font-semibold' : 'text-charcoal/60'
                 }`}
               >
                 Admin

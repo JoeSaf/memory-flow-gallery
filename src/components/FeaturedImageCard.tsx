@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
-import { useProgressiveImage } from '../hooks/useProgressiveImage';
-import { getProgressiveUrls, isCloudinaryConfigured } from '../lib/cloudinary';
+import { isCloudinaryConfigured, getThumbnailUrl } from '../lib/cloudinary';
 
 export const FeaturedImageCard = () => {
   // You can easily change these values to customize the featured image
@@ -11,19 +10,8 @@ export const FeaturedImageCard = () => {
     title: "Memoir" // Change this to your desired title
   };
 
-  // Progressive loading setup
-  const progressiveUrls = isCloudinaryConfigured() ? getProgressiveUrls(featuredImage.src) : null;
-  const enableProgressive = isCloudinaryConfigured() && !!progressiveUrls;
-
-  const { currentStage, isLoading, isError } = useProgressiveImage(
-    progressiveUrls?.placeholder || featuredImage.src,
-    progressiveUrls?.lowQuality || featuredImage.src,
-    progressiveUrls?.highQuality || featuredImage.src,
-    { enableProgressive }
-  );
-
-  // Use progressive image or fallback
-  const imageUrl = enableProgressive && !isError ? currentStage.src : featuredImage.src;
+  // Simple image URL handling
+  const imageUrl = isCloudinaryConfigured() ? getThumbnailUrl(featuredImage.src) : featuredImage.src;
 
   return (
     <section className="max-w-2xl mx-auto animate-gentle-fade">
@@ -32,18 +20,9 @@ export const FeaturedImageCard = () => {
           <img
             src={imageUrl}
             alt={featuredImage.alt}
-            className={`
-              w-full h-full object-cover transition-all duration-500
-              ${currentStage.loaded ? 'opacity-100' : 'opacity-0'}
-              ${currentStage.stage === 'placeholder' ? 'filter blur-sm' : ''}
-              ${currentStage.stage === 'lowQuality' ? 'filter blur-[1px]' : ''}
-            `}
+            className="w-full h-full object-cover transition-all duration-500"
+            loading="lazy"
           />
-          
-          {/* Loading shimmer overlay */}
-          {isLoading && (
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
-          )}
           
           {/* Subtle overlay gradient - keep existing */}
           <div className="absolute inset-0 bg-gradient-to-t from-charcoal/20 via-transparent to-transparent" />
